@@ -1,0 +1,67 @@
+<resources>
+    <string name="app_name">AList 管理器</string>
+
+    <!-- 登录界面 -->
+    <string name="login_title">AList 管理器</string>
+    <string name="login_subtitle">Android 文件管理工具</string>
+    <string name="server_url">服务器地址</string>
+    <string name="server_url_hint">https://your-alist-server.com</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="remember_me">记住我</string>
+    <string name="login_button">登录</string>
+    <string name="login_success">登录成功</string>
+    <string name="login_failed">登录失败</string>
+    <string name="logout_success">退出登录成功</string>
+
+    <!-- 文件管理 -->
+    <string name="files">文件</string>
+    <string name="folder">文件夹</string>
+    <string name="create_folder">新建文件夹</string>
+    <string name="rename">重命名</string>
+    <string name="delete">删除</string>
+    <string name="upload">上传</string>
+    <string name="download">下载</string>
+    <string name="share">分享</string>
+    <string name="search">搜索</string>
+    <string name="refresh">刷新</string>
+
+    <!-- 播放器 -->
+    <string name="player">播放器</string>
+    <string name="play">播放</string>
+    <string name="pause">暂停</string>
+    <string name="stop">停止</string>
+    <string name="previous">上一个</string>
+    <string name="next">下一个</string>
+    <string name="audio_track">音轨</string>
+    <string name="subtitle">字幕</string>
+    <string name="playback_speed">播放速度</string>
+
+    <!-- 播放历史 -->
+    <string name="play_history">播放历史</string>
+    <string name="continue_watching">继续观看</string>
+    <string name="continue_listening">继续收听</string>
+    <string name="clear_history">清除历史</string>
+
+    <!-- 设置 -->
+    <string name="settings">设置</string>
+    <string name="theme">主题</string>
+    <string name="dark_theme">深色主题</string>
+    <string name="light_theme">浅色主题</string>
+    <string name="system_theme">跟随系统</string>
+    <string name="accessibility">无障碍</string>
+    <string name="large_text">大字体</string>
+    <string name="high_contrast">高对比度</string>
+
+    <!-- 通用 -->
+    <string name="ok">确定</string>
+    <string name="cancel">取消</string>
+    <string name="yes">是</string>
+    <string name="no">否</string>
+    <string name="loading">加载中...</string>
+    <string name="error">错误</string>
+    <string name="success">成功</string>
+    <string name="network_error">网络错误</string>
+    <string name="permission_denied">权限被拒绝</string>
+    <string name="file_not_found">文件不存在</string>
+</resources>
