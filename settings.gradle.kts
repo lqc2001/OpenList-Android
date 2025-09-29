@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "alist本地化工具"
+rootProject.name = "OpenList Android管理工具"
 include(":app")

@@ -7,11 +7,11 @@ plugins {
 }
 
 android {
-    namespace = "com.alist.android"
+    namespace = "com.openlist.android"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.alist.android"
+        applicationId = "com.openlist.android"
         minSdk = 23
         targetSdk = 35
         versionCode = 1
