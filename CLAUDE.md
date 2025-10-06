@@ -22,6 +22,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Added proper null checks in SimpleFileViewModel
 - Eliminated flow transparency violations in error handling
 
+**Project Renaming (AList → OpenList)**: ✅ **COMPLETED**
+- Complete renaming of all software references from AList to OpenList
+- Updated core class names (AListApplication → OpenListApplication, etc.)
+- Renamed data storage references (alist_preferences → openlist_preferences, etc.)
+- Consolidated packages from com.example.alist to com.openlist.android
+- Updated all user interface text and documentation
+- Created comprehensive project documentation
+- Pushed to GitHub repository: https://github.com/lqc2001/OpenList-Android
+
 ## Build and Development Commands
 
 ### Core Build Commands
@@ -269,6 +278,12 @@ if (!networkMonitor.isConnected.value) {
 ### URL Format Errors
 - **Issue**: "应为URL方案'http'或'https'，但找不到j.yzfy的方案"
 - **Solution**: Use `UrlUtils.formatUrl()` to auto-add protocol prefixes
+
+### Project Renaming Related Issues
+- **Issue**: Application data and settings are reset after renaming
+- **Solution**: This is expected behavior due to data storage renaming (alist_preferences → openlist_preferences). Users need to reconfigure their settings.
+- **Issue**: GitHub repository not found during push
+- **Solution**: Ensure repository exists first before pushing code. The project is now available at: https://github.com/lqc2001/OpenList-Android
 
 ### Network Timeouts
 - **Issue**: Connection timeouts on slow networks
