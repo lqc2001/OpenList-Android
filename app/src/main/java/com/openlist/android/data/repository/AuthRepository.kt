@@ -1,7 +1,7 @@
 package com.openlist.android.data.repository
 
 import android.app.Application
-import com.openlist.android.data.api.AListApiService
+import com.openlist.android.data.api.OpenListApiService
 import com.openlist.android.data.model.ApiResponse
 import com.openlist.android.data.model.LoginRequest
 import com.openlist.android.data.model.LoginResponse
@@ -33,7 +33,7 @@ class AuthRepository @Inject constructor(
     private val preferencesRepository: PreferencesRepository
 ) {
 
-    private fun createApiService(serverUrl: String): AListApiService {
+    private fun createApiService(serverUrl: String): OpenListApiService {
         val gson = GsonBuilder()
             .setLenient()
             .create()
@@ -76,7 +76,7 @@ class AuthRepository @Inject constructor(
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
 
-        return retrofit.create(AListApiService::class.java)
+        return retrofit.create(OpenListApiService::class.java)
     }
 
     suspend fun login(username: String, password: String): Flow<Result<LoginResponse>> = flow {

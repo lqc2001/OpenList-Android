@@ -20,7 +20,7 @@ class SecurityHelper private constructor(private val context: Context) {
 
     companion object {
         private const val TAG = "SecurityHelper"
-        private const val PREFS_NAME = "alist_secure_prefs"
+        private const val PREFS_NAME = "openlist_secure_prefs"
 
         @Volatile
         private var instance: SecurityHelper? = null

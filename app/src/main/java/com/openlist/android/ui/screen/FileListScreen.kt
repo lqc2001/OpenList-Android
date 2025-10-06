@@ -17,7 +17,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.openlist.android.ui.theme.AListTheme
+import com.openlist.android.ui.theme.OpenListTheme
 import com.openlist.android.data.model.FileInfo
 import com.openlist.android.ui.viewmodel.SimpleFileViewModel
 import java.text.SimpleDateFormat

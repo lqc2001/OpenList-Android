@@ -21,7 +21,7 @@ import com.openlist.android.ui.screen.VideoPlayerScreen
 import com.openlist.android.ui.screen.LoginScreen
 import com.openlist.android.ui.screen.PlayHistoryScreen
 import com.openlist.android.ui.screen.SettingsScreen
-import com.openlist.android.ui.theme.AListTheme
+import com.openlist.android.ui.theme.OpenListTheme
 import com.openlist.android.ui.viewmodel.AuthState
 import com.openlist.android.ui.viewmodel.SimpleAuthViewModel
 import com.openlist.android.ui.viewmodel.SimpleFileViewModel
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity() {
         Log.d(TAG, "Edge-to-edge enabled")
         setContent {
             Log.d(TAG, "Setting Compose content...")
-            AListTheme {
+            OpenListTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

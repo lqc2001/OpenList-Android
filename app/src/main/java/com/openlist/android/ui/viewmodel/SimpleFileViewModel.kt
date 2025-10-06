@@ -3,7 +3,7 @@ package com.openlist.android.ui.viewmodel
 import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.openlist.android.data.api.AListApiService
+import com.openlist.android.data.api.OpenListApiService
 import com.openlist.android.data.model.FileInfo
 import com.openlist.android.data.model.FileListResponse
 import com.openlist.android.data.network.NetworkModule
@@ -29,7 +29,7 @@ import javax.inject.Inject
 class SimpleFileViewModel @Inject constructor(
     private val application: Application,
     private val preferencesRepository: PreferencesRepository,
-    private val apiService: AListApiService
+    private val apiService: OpenListApiService
 ) : ViewModel() {
 
     private val _currentPath = MutableStateFlow("/")

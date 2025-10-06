@@ -89,12 +89,12 @@ The project uses Hilt for modern, type-safe dependency injection:
 - **@Inject**: Constructor injection annotation
 
 #### Hilt Modules
-- **AppModule**: Provides Application, PreferencesRepository, OkHttpClient, Retrofit, AListApiService, AppDatabase, PlayHistoryDao
+- **AppModule**: Provides Application, PreferencesRepository, OkHttpClient, Retrofit, OpenListApiService, AppDatabase, PlayHistoryDao
 - **RepositoryModule**: Provides AuthRepository, FileRepository, PlayHistoryRepository
 
 #### Dependency Graph
 ```
-AListApplication (@HiltAndroidApp)
+OpenListApplication (@HiltAndroidApp)
     ↓
 MainActivity (@AndroidEntryPoint)
     ↓
@@ -224,7 +224,7 @@ Repositories use constructor injection for their dependencies:
 ```kotlin
 @Singleton
 class AuthRepository @Inject constructor(
-    private val apiService: AListApiService,
+    private val apiService: OpenListApiService,
     private val preferencesRepository: PreferencesRepository
 ) {
     // Repository implementation
@@ -328,7 +328,7 @@ if (response != null && response.data != null) {
 5. **Add Test Cases**: Leverage Hilt's testability for unit testing
 
 ### Adding New API Endpoints
-1. Add interface method to `AListApiService`
+1. Add interface method to `OpenListApiService`
 2. Create corresponding data models in `data/model/`
 3. Implement repository pattern with Hilt injection
 4. Add error handling and network validation

@@ -1,8 +1,8 @@
 <resources>
-    <string name="app_name">AList 管理器</string>
+    <string name="app_name">OpenList 管理器</string>
 
     <!-- 登录界面 -->
-    <string name="login_title">AList 管理器</string>
+    <string name="login_title">OpenList 管理器</string>
     <string name="login_subtitle">Android 文件管理工具</string>
     <string name="server_url">服务器地址</string>
     <string name="server_url_hint">https://your-alist-server.com</string>

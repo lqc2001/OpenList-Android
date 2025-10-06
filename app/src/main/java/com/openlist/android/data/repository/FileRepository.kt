@@ -1,6 +1,6 @@
 package com.openlist.android.data.repository
 
-import com.openlist.android.data.api.AListApiService
+import com.openlist.android.data.api.OpenListApiService
 import com.openlist.android.data.model.*
 import com.openlist.android.data.preferences.PreferencesRepository
 import kotlinx.coroutines.flow.Flow
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class FileRepository @Inject constructor(
-    private val apiService: AListApiService,
+    private val apiService: OpenListApiService,
     private val preferencesRepository: PreferencesRepository
 ) {
 

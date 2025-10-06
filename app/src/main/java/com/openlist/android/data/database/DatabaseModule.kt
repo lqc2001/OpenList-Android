@@ -11,7 +11,7 @@ object DatabaseModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "alist_database"
+            "openlist_database"
         ).fallbackToDestructiveMigration()
          .build()
     }

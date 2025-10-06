@@ -1,7 +1,7 @@
 package com.openlist.android.di
 
 import android.app.Application
-import com.openlist.android.data.api.AListApiService
+import com.openlist.android.data.api.OpenListApiService
 import com.openlist.android.data.database.PlayHistoryDao
 import com.openlist.android.data.preferences.PreferencesRepository
 import com.openlist.android.data.repository.FileRepository
@@ -29,7 +29,7 @@ object RepositoryModule {
     @Provides
     @Singleton
     fun provideFileRepository(
-        apiService: AListApiService,
+        apiService: OpenListApiService,
         preferencesRepository: PreferencesRepository
     ): FileRepository {
         return FileRepository(apiService, preferencesRepository)

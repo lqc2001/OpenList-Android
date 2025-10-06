@@ -55,7 +55,7 @@ object ErrorHandlingUtils {
                 DataStorageException("数据访问安全异常", exception)
             }
             else -> {
-                AListException("未知错误: ${exception.message}", exception)
+                OpenListException("未知错误: ${exception.message}", exception)
             }
         }
     }

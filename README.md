@@ -1,13 +1,13 @@
-# AList Android 管理工具
+# OpenList Android 管理工具
 
 <div align="center">
 
-![AList Logo](https://img.shields.io/badge/AList-Android-green?style=for-the-badge&logo=android&logoColor=white)
+![OpenList Logo](https://img.shields.io/badge/OpenList-Android-green?style=for-the-badge&logo=android&logoColor=white)
 ![Version](https://img.shields.io/badge/version-1.0.0-blue?style=for-the-badge)
 ![Build](https://img.shields.io/badge/build-passing-brightgreen?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-yellow?style=for-the-badge)
 
-**基于 AList 官方 API 开发的 Android 文件管理工具**
+**基于 OpenList 协议开发的 Android 文件管理工具**
 
 [功能特色](#-功能特色) • [快速开始](#-快速开始) • [安装指南](#-安装指南) • [使用说明](#-使用说明) • [技术架构](#-技术架构) • [开发文档](#-开发文档)
 
@@ -18,7 +18,7 @@
 ## 🌟 功能特色
 
 ### 📁 文件管理
-- **远程文件浏览** - 访问 AList 服务器上的所有文件
+- **远程文件浏览** - 访问 OpenList 服务器上的所有文件
 - **文件夹导航** - 支持多级目录浏览和快速导航
 - **文件搜索** - 按文件名和内容搜索文件
 - **文件操作** - 创建文件夹、删除文件和文件夹
@@ -58,7 +58,7 @@
 - **Android 版本**: 6.0+ (API 23+)
 - **存储空间**: 至少 50MB 可用空间
 - **网络**: 需要互联网连接
-- **AList 服务器**: 版本 3.0+ 的 AList 服务
+- **OpenList 服务器**: 版本 3.0+ 的 AList 服务
 
 ### 主要功能演示
 
@@ -131,11 +131,11 @@ adb install app/build/outputs/apk/debug/app-debug.apk
 ### 首次设置
 
 1. **启动应用**
-   - 打开 AList Android 应用
+   - 打开 OpenList Android 应用
    - 同意应用权限请求
 
 2. **配置服务器**
-   - 输入 AList 服务器地址 (例如: `https://your-alist-server.com`)
+   - 输入 OpenList 服务器地址 (例如: `https://your-alist-server.com`)
    - 输入用户名和密码
    - 可选择"记住密码"以便下次自动登录
 

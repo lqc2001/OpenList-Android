@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.AList" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.OpenList" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/md_theme_light_primary</item>
         <item name="colorPrimaryDark">@color/md_theme_light_primary</item>
         <item name="colorAccent">@color/md_theme_light_secondary</item>

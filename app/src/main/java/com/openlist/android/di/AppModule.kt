@@ -1,7 +1,7 @@
 package com.openlist.android.di
 
 import android.app.Application
-import com.openlist.android.data.api.AListApiService
+import com.openlist.android.data.api.OpenListApiService
 import com.openlist.android.data.database.AppDatabase
 import com.openlist.android.data.database.PlayHistoryDao
 import com.openlist.android.data.network.NetworkModule
@@ -59,8 +59,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideAListApiService(retrofit: Retrofit): AListApiService {
-        return NetworkModule.provideAListApiService(retrofit)
+    fun provideOpenListApiService(retrofit: Retrofit): OpenListApiService {
+        return NetworkModule.provideOpenListApiService(retrofit)
     }
 
     @Provides

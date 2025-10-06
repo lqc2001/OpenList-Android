@@ -1,7 +1,7 @@
 package com.openlist.android.data.network
 
 import android.app.Application
-import com.openlist.android.data.api.AListApiService
+import com.openlist.android.data.api.OpenListApiService
 import com.openlist.android.data.preferences.PreferencesRepository
 import com.openlist.android.data.utils.UrlUtils
 import com.google.gson.Gson
@@ -80,9 +80,9 @@ object NetworkModule {
             .build()
     }
 
-    fun provideAListApiService(
+    fun provideOpenListApiService(
         retrofit: Retrofit
-    ): AListApiService {
-        return retrofit.create(AListApiService::class.java)
+    ): OpenListApiService {
+        return retrofit.create(OpenListApiService::class.java)
     }
 }

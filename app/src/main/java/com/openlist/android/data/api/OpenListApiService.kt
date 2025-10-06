@@ -4,7 +4,7 @@ import com.openlist.android.data.model.*
 import retrofit2.Response
 import retrofit2.http.*
 
-interface AListApiService {
+interface OpenListApiService {
 
     // 认证相关
     @POST("/api/auth/login")
