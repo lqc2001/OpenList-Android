@@ -3,7 +3,7 @@ package com.openlist.android.data.model
 data class FileListResponse(
     val code: Int,
     val message: String,
-    val data: FileListData
+    val data: FileListData?
 )
 
 data class FileListData(
@@ -53,7 +53,7 @@ data class RelatedFile(
 data class FileLinkResponse(
     val code: Int,
     val message: String,
-    val data: FileLinkData
+    val data: FileLinkData?
 )
 
 data class FileLinkData(
@@ -65,7 +65,7 @@ data class FileLinkData(
 data class UploadResponse(
     val code: Int,
     val message: String,
-    val data: UploadData
+    val data: UploadData?
 )
 
 data class UploadData(
@@ -76,7 +76,7 @@ data class UploadData(
 data class SearchResponse(
     val code: Int,
     val message: String,
-    val data: SearchData
+    val data: SearchData?
 )
 
 data class SearchData(

@@ -60,7 +60,7 @@ fun FileListScreen(
                         }
                     } else {
                         IconButton(onClick = onNavigateBack) {
-                            Icon(Icons.Default.Menu, contentDescription = "菜单")
+                            Icon(Icons.Default.Settings, contentDescription = "设置")
                         }
                     }
                 },

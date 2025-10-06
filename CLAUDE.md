@@ -2,6 +2,26 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Project Status
+
+**Hilt Dependency Injection**: ✅ **COMPLETED**
+- Full Hilt integration with dependency injection
+- All ViewModels, Repositories, and Activities updated
+- Build successful with debug APK generation
+- Documentation updated with Hilt patterns and troubleshooting
+
+**Login Crash Fix**: ✅ **COMPLETED**
+- Fixed SimpleFileViewModel constructor injection issue
+- Added @HiltViewModel annotation and @Inject constructor
+- Resolved dependency binding conflicts in Hilt modules
+- App no longer crashes on login attempt
+
+**Flow Exception Transparency Fix**: ✅ **COMPLETED**
+- Fixed nullable data handling in API response models
+- Updated FileListResponse, SearchResponse, FileLinkResponse, UploadResponse
+- Added proper null checks in SimpleFileViewModel
+- Eliminated flow transparency violations in error handling
+
 ## Build and Development Commands
 
 ### Core Build Commands
@@ -38,14 +58,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Architecture
 
-### MVVM + Clean Architecture
-The project follows MVVM architecture with Clean Architecture principles:
+### MVVM + Clean Architecture with Hilt
+The project follows MVVM architecture with Clean Architecture principles and Hilt dependency injection:
 
 ```
 Presentation Layer (Compose UI + ViewModels)
-    ↓
+    ↓ (Hilt Dependency Injection)
 Domain Layer (Use Cases + Business Logic)
-    ↓
+    ↓ (Hilt Dependency Injection)
 Data Layer (Repositories + Data Sources)
 ```
 
@@ -55,8 +75,42 @@ Data Layer (Repositories + Data Sources)
 2. **Dependency Inversion**: High-level modules don't depend on low-level modules
 3. **Reactive Programming**: Kotlin Flow for async data streams
 4. **State Management**: StateFlow for UI state management
+5. **Dependency Injection**: Hilt for compile-time dependency management
+
+### Hilt Dependency Injection
+
+The project uses Hilt for modern, type-safe dependency injection:
+
+#### Core Components
+- **@HiltAndroidApp**: Application class annotation for Hilt setup
+- **@AndroidEntryPoint**: Activity/Fragment annotation for dependency injection
+- **@HiltViewModel**: ViewModel annotation for constructor injection
+- **@Module**: Hilt modules for providing dependencies
+- **@Inject**: Constructor injection annotation
+
+#### Hilt Modules
+- **AppModule**: Provides Application, PreferencesRepository, OkHttpClient, Retrofit, AListApiService, AppDatabase, PlayHistoryDao
+- **RepositoryModule**: Provides AuthRepository, FileRepository, PlayHistoryRepository
+
+#### Dependency Graph
+```
+AListApplication (@HiltAndroidApp)
+    ↓
+MainActivity (@AndroidEntryPoint)
+    ↓
+ViewModels (@HiltViewModel)
+    ↓
+Repositories (@Inject)
+    ↓
+Data Sources (API, Database, Preferences)
+```
 
 ### Core Modules Structure
+
+#### Dependency Injection (`di/`)
+- **AppModule.kt**: Provides Application-level dependencies (Network, Database, Preferences)
+- **RepositoryModule.kt**: Provides Repository instances for data operations
+- **Hilt Components**: Singleton, ActivityRetained, Activity, Fragment scopes
 
 #### Network Layer (`data/network/`)
 - **NetworkModule.kt**: OkHttp/Retrofit configuration with optimized timeouts
@@ -64,6 +118,11 @@ Data Layer (Repositories + Data Sources)
 - **RetryInterceptor.kt**: Automatic request retry with exponential backoff
 - **NetworkStateInterceptor.kt**: Network state validation and error handling
 - **AuthInterceptor.kt**: Bearer token authentication
+
+#### Repository Layer (`data/repository/`)
+- **AuthRepository.kt**: Authentication operations with Hilt injection
+- **FileRepository.kt**: File operations with Hilt injection
+- **PlayHistoryRepository.kt**: Play history management with Hilt injection
 
 #### Security Layer (`data/security/`)
 - **SecurityHelper.kt**: Android Keystore integration for data encryption
@@ -149,16 +208,36 @@ ErrorHandlingUtils.safeApiCall(application) {
 }
 ```
 
-### ViewModel Pattern
-All ViewModels follow the same pattern with factory pattern:
+### ViewModel Pattern with Hilt
+All ViewModels use Hilt for dependency injection, eliminating the need for manual factories:
 ```kotlin
-companion object {
-    val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T {
-            val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as Application
-            return SomeViewModel(application) as T
-        }
-    }
+@HiltViewModel
+class SimpleAuthViewModel @Inject constructor(
+    val application: Application,
+    private val authRepository: AuthRepository,
+    private val preferencesRepository: PreferencesRepository
+) : ViewModel()
+```
+
+### Repository Pattern with Hilt
+Repositories use constructor injection for their dependencies:
+```kotlin
+@Singleton
+class AuthRepository @Inject constructor(
+    private val apiService: AListApiService,
+    private val preferencesRepository: PreferencesRepository
+) {
+    // Repository implementation
+}
+```
+
+### Activity/Fragment Pattern
+Activities and Fragments use `@AndroidEntryPoint` for Hilt injection:
+```kotlin
+@AndroidEntryPoint
+class MainActivity : ComponentActivity() {
+    // ViewModels automatically injected via Hilt
+    val viewModel: SimpleAuthViewModel by viewModels()
 }
 ```
 
@@ -199,22 +278,86 @@ if (!networkMonitor.isConnected.value) {
 - **Issue**: Token expiration or invalid credentials
 - **Solution**: Implement token refresh logic in `AuthInterceptor`
 
+### Hilt Dependency Injection Issues
+- **Issue**: "Dependency cycle detected" or "Duplicate bindings"
+- **Solution**: Avoid providing Application instance manually in Hilt modules
+- **Issue**: "Hilt components must be annotated with @HiltAndroidApp"
+- **Solution**: Ensure Application class has proper @HiltAndroidApp annotation
+- **Issue**: "ViewModel cannot be provided without @HiltViewModel"
+- **Solution**: Add @HiltViewModel annotation and @Inject constructor to ViewModels
+- **Issue**: "Activity must be annotated with @AndroidEntryPoint"
+- **Solution**: Add @AndroidEntryPoint annotation to Activities/Fragments using Hilt
+
+### Build Issues After Hilt Integration
+- **Issue**: Kapt compilation failures with Hilt
+- **Solution**: Ensure kapt dependencies are correctly configured and Kotlin version compatibility
+- **Issue**: "Unresolved reference: map" in Repository classes
+- **Solution**: Add proper imports for Kotlin Flow operators (`kotlinx.coroutines.flow.map`)
+- **Issue**: Factory pattern conflicts after Hilt migration
+- **Solution**: Remove manual Factory companion objects from ViewModels
+
+### Runtime Issues
+- **Issue**: App crashes on login with "NoSuchMethodException: SimpleFileViewModel.<init>[]"
+- **Solution**: Add @HiltViewModel annotation and @Inject constructor to ViewModels; remove manual Factory patterns
+- **Issue**: "Cannot create an instance of class com.openlist.android.ui.viewmodel.SimpleFileViewModel"
+- **Solution**: Ensure all dependencies are properly provided in Hilt modules and ViewModel uses constructor injection
+- **Issue**: "Duplicate bindings" errors during compilation
+- **Solution**: Remove duplicate @Provides methods from different Hilt modules; keep only one provider per type
+
+### Flow Exception Transparency Issues
+- **Issue**: "Flow exception transparency is violated" errors in API calls
+- **Solution**: Ensure API response data models use nullable types for server responses that may be null
+- **Issue**: "NullPointerException: Attempt to invoke virtual method 'getContent()' on a null object reference"
+- **Solution**: Add proper null checks before accessing nested data fields in API responses
+- **Pattern**: Always check for null both at response level and data level:
+```kotlin
+if (response != null && response.data != null) {
+    // Safe to access response.data.content
+} else {
+    // Handle null case appropriately
+}
+```
+
 ## Development Guidelines
+
+### Adding New Features with Hilt
+1. **Create ViewModels**: Use `@HiltViewModel` and constructor injection
+2. **Create Repositories**: Use `@Inject` constructor and add to `RepositoryModule`
+3. **Add Dependencies**: Add new dependencies to appropriate Hilt module
+4. **Update UI**: Use `@AndroidEntryPoint` for Activities/Fragments
+5. **Add Test Cases**: Leverage Hilt's testability for unit testing
 
 ### Adding New API Endpoints
 1. Add interface method to `AListApiService`
 2. Create corresponding data models in `data/model/`
-3. Implement repository pattern in relevant ViewModel
+3. Implement repository pattern with Hilt injection
 4. Add error handling and network validation
+5. Update ViewModel to use injected repository
 
 ### UI Development
 - Use Jetpack Compose for all new UI components
 - Follow Material3 design guidelines
 - Implement proper accessibility support
 - Handle different screen sizes with responsive layouts
+- Use `@AndroidEntryPoint` for dependency injection
 
 ### Network Operations
-- Always use the configured network module
+- Always use the configured network module via Hilt injection
 - Implement proper error handling
 - Show network status to users
 - Use appropriate timeouts and retry logic
+- Leverage Hilt's singleton scoping for shared dependencies
+- Handle nullable API responses safely to prevent crashes
+
+### Data Model Best Practices
+- Always make API response data fields nullable (`?`) to handle server inconsistencies
+- Add null checks before accessing nested data fields in responses
+- Use safe call operators (`?.`) when accessing potentially null data
+- Provide meaningful error messages when data is unexpectedly null
+- Follow the pattern: "check response null, then check data null, then access fields"
+
+### Testing with Hilt
+- Use Hilt's testing infrastructure for unit tests
+- Mock dependencies using Hilt's `@UninstallModules`
+- Test ViewModels with injected mock repositories
+- Use `@HiltAndroidTest` for integration tests

@@ -6,6 +6,12 @@ data class LoginRequest(
 )
 
 data class LoginResponse(
+    val code: Int,
+    val message: String,
+    val data: LoginData?
+)
+
+data class LoginData(
     val token: String,
     val user: User
 )

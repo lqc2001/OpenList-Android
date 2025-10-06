@@ -57,11 +57,20 @@ object NetworkModule {
             preferencesRepository.getServerUrl().first()
         }
 
+        return provideRetrofit(okHttpClient, gson, preferencesRepository, savedUrl)
+    }
+
+    fun provideRetrofit(
+        okHttpClient: OkHttpClient,
+        gson: Gson,
+        preferencesRepository: PreferencesRepository,
+        serverUrl: String?
+    ): Retrofit {
         // 格式化URL确保包含协议前缀
-        val baseUrl = if (savedUrl.isNullOrEmpty()) {
+        val baseUrl = if (serverUrl.isNullOrEmpty()) {
             "http://localhost:5244"
         } else {
-            UrlUtils.formatUrl(savedUrl)
+            UrlUtils.formatUrl(serverUrl)
         }
 
         return Retrofit.Builder()

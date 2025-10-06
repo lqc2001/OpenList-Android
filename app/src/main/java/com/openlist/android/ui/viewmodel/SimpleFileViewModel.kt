@@ -22,9 +22,14 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.CreationExtras
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 
-class SimpleFileViewModel(
-    private val application: Application
+@HiltViewModel
+class SimpleFileViewModel @Inject constructor(
+    private val application: Application,
+    private val preferencesRepository: PreferencesRepository,
+    private val apiService: AListApiService
 ) : ViewModel() {
 
     private val _currentPath = MutableStateFlow("/")
@@ -47,24 +52,6 @@ class SimpleFileViewModel(
 
     // 网络连接监控器
     private val networkMonitor = NetworkConnectivityMonitor.getInstance(application)
-
-    // 数据存储和网络组件
-    private val preferencesRepository: PreferencesRepository by lazy {
-        DataStoreModule.providePreferencesRepository(
-            DataStoreModule.provideDataStore(application),
-            application
-        )
-    }
-
-    private val apiService: AListApiService by lazy {
-        NetworkModule.provideAListApiService(
-            NetworkModule.provideRetrofit(
-                NetworkModule.provideOkHttpClient(NetworkModule.provideHttpLoggingInterceptor(), application, preferencesRepository),
-                NetworkModule.provideGson(),
-                preferencesRepository
-            )
-        )
-    }
 
     init {
         loadFiles()
@@ -111,9 +98,11 @@ class SimpleFileViewModel(
                             onSuccess = { response ->
                                 if (response.isSuccessful) {
                                     val fileListResponse = response.body()
-                                    if (fileListResponse != null) {
+                                    if (fileListResponse != null && fileListResponse.data != null) {
                                         _files.value = fileListResponse.data.content
                                         _currentPath.value = fileListResponse.data.path
+                                    } else if (fileListResponse != null) {
+                                        _error.value = "文件列表数据为空: ${fileListResponse.message}"
                                     } else {
                                         _error.value = "文件列表响应为空"
                                     }
@@ -159,8 +148,10 @@ class SimpleFileViewModel(
 
                     if (response.isSuccessful) {
                         val searchResponse = response.body()
-                        if (searchResponse != null) {
+                        if (searchResponse != null && searchResponse.data != null) {
                             _files.value = searchResponse.data.content
+                        } else if (searchResponse != null) {
+                            _error.value = "搜索数据为空: ${searchResponse.message}"
                         } else {
                             _error.value = "搜索响应为空"
                         }
@@ -318,18 +309,5 @@ class SimpleFileViewModel(
 
     fun clearError() {
         _error.value = null
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : androidx.lifecycle.ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T {
-                val application = extras[ViewModelProvider.AndroidViewModelFactory.APPLICATION_KEY] as android.app.Application
-                return SimpleFileViewModel(application) as T
-            }
-        }
     }
 }

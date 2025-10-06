@@ -1,25 +1,17 @@
 package com.openlist.android.data.preferences
 
 import android.content.Context
-import android.security.keystore.KeyGenParameterSpec
-import android.security.keystore.KeyProperties
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.openlist.android.data.security.SecurityHelper
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.security.KeyStore
-import javax.crypto.Cipher
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-import javax.crypto.spec.GCMParameterSpec
-import android.util.Base64
+import kotlinx.coroutines.flow.catch
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "alist_preferences")
 
@@ -53,6 +45,8 @@ interface PreferencesRepository {
     fun getRememberMe(): Flow<Boolean>
 
     suspend fun clearAuthData()
+    suspend fun clearCredentials()
+    fun hasSavedCredentials(): Flow<Boolean>
 }
 
 class PreferencesRepositoryImpl(
@@ -61,6 +55,7 @@ class PreferencesRepositoryImpl(
 ) : PreferencesRepository {
 
     private val securityHelper = SecurityHelper.getInstance(context)
+    private val TAG = "PreferencesRepository"
 
     companion object {
         private val AUTH_TOKEN_KEY = stringPreferencesKey("auth_token")
@@ -71,87 +66,175 @@ class PreferencesRepositoryImpl(
     }
 
     override suspend fun saveAuthToken(token: String) {
-        dataStore.edit { preferences ->
-            preferences[AUTH_TOKEN_KEY] = securityHelper.encryptData(token)
+        try {
+            Log.d(TAG, "Saving auth token")
+            val success = securityHelper.saveString("auth_token", token)
+            if (!success) {
+                Log.e(TAG, "Failed to save auth token to encrypted storage")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving auth token", e)
         }
     }
 
     override suspend fun saveServerUrl(url: String) {
-        dataStore.edit { preferences ->
-            preferences[SERVER_URL_KEY] = url
+        try {
+            Log.d(TAG, "Saving server URL: $url")
+            dataStore.edit { preferences ->
+                preferences[SERVER_URL_KEY] = url
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving server URL", e)
         }
     }
 
     override suspend fun saveUsername(username: String) {
-        dataStore.edit { preferences ->
-            preferences[USERNAME_KEY] = username
+        try {
+            Log.d(TAG, "Saving username: $username")
+            val success = securityHelper.saveString("username", username)
+            if (!success) {
+                Log.e(TAG, "Failed to save username to encrypted storage")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving username", e)
         }
     }
 
     override suspend fun savePassword(password: String) {
-        dataStore.edit { preferences ->
-            preferences[PASSWORD_KEY] = if (password.isEmpty()) "" else securityHelper.encryptData(password)
+        try {
+            Log.d(TAG, "Saving password")
+            val success = securityHelper.saveString("password", password)
+            if (!success) {
+                Log.e(TAG, "Failed to save password to encrypted storage")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving password", e)
         }
     }
 
     override suspend fun saveRememberMe(remember: Boolean) {
-        dataStore.edit { preferences ->
-            preferences[REMEMBER_ME_KEY] = remember
+        try {
+            Log.d(TAG, "Saving remember me: $remember")
+            val success = securityHelper.saveBoolean("remember_me", remember)
+            if (!success) {
+                Log.e(TAG, "Failed to save remember me to encrypted storage")
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error saving remember me", e)
         }
     }
 
     override fun getAuthToken(): Flow<String?> {
         return dataStore.data.map { preferences ->
-            preferences[AUTH_TOKEN_KEY]?.let { encryptedToken ->
-                try {
-                    securityHelper.decryptData(encryptedToken)
-                } catch (e: Exception) {
-                    null
-                }
+            try {
+                securityHelper.getString("auth_token")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting auth token", e)
+                null
             }
+        }.catch { e ->
+            Log.e(TAG, "Flow error getting auth token", e)
+            emit(null)
         }
     }
 
     override fun getServerUrl(): Flow<String?> {
         return dataStore.data.map { preferences ->
-            preferences[SERVER_URL_KEY]
+            try {
+                preferences[SERVER_URL_KEY]
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting server URL", e)
+                null
+            }
+        }.catch { e ->
+            Log.e(TAG, "Flow error getting server URL", e)
+            emit(null)
         }
     }
 
     override fun getUsername(): Flow<String?> {
         return dataStore.data.map { preferences ->
-            preferences[USERNAME_KEY]
+            try {
+                securityHelper.getString("username")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting username", e)
+                null
+            }
+        }.catch { e ->
+            Log.e(TAG, "Flow error getting username", e)
+            emit(null)
         }
     }
 
     override fun getPassword(): Flow<String?> {
         return dataStore.data.map { preferences ->
-            preferences[PASSWORD_KEY]?.let { encryptedPassword ->
-                if (encryptedPassword.isEmpty()) {
-                    ""
-                } else {
-                    try {
-                        securityHelper.decryptData(encryptedPassword)
-                    } catch (e: Exception) {
-                        ""
-                    }
-                }
+            try {
+                securityHelper.getString("password")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting password", e)
+                null
             }
+        }.catch { e ->
+            Log.e(TAG, "Flow error getting password", e)
+            emit(null)
         }
     }
 
     override fun getRememberMe(): Flow<Boolean> {
         return dataStore.data.map { preferences ->
-            preferences[REMEMBER_ME_KEY] ?: false
+            try {
+                securityHelper.getBoolean("remember_me", false)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error getting remember me", e)
+                false
+            }
+        }.catch { e ->
+            Log.e(TAG, "Flow error getting remember me", e)
+            emit(false)
         }
     }
 
     override suspend fun clearAuthData() {
-        dataStore.edit { preferences ->
-            preferences.remove(AUTH_TOKEN_KEY)
-            preferences.remove(USERNAME_KEY)
-            preferences.remove(PASSWORD_KEY)
-            preferences.remove(REMEMBER_ME_KEY)
+        try {
+            Log.d(TAG, "Clearing auth data")
+            dataStore.edit { preferences ->
+                preferences.remove(AUTH_TOKEN_KEY)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing auth data", e)
+        }
+    }
+
+    override suspend fun clearCredentials() {
+        try {
+            Log.d(TAG, "Clearing all credentials")
+            securityHelper.remove("username")
+            securityHelper.remove("password")
+            securityHelper.remove("remember_me")
+            dataStore.edit { preferences ->
+                preferences.remove(SERVER_URL_KEY)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error clearing credentials", e)
+        }
+    }
+
+    override fun hasSavedCredentials(): Flow<Boolean> {
+        return kotlinx.coroutines.flow.flow {
+            try {
+                val rememberMe = securityHelper.getBoolean("remember_me", false)
+                val username = securityHelper.getString("username")
+                val password = securityHelper.getString("password")
+                val hasCredentials = rememberMe && !username.isNullOrEmpty() && !password.isNullOrEmpty()
+                Log.d(TAG, "Has saved credentials: $hasCredentials")
+                emit(hasCredentials)
+            } catch (e: Exception) {
+                Log.e(TAG, "Error checking saved credentials", e)
+                emit(false)
+            }
+        }.catch { e ->
+            Log.e(TAG, "Flow error checking saved credentials", e)
+            emit(false)
         }
     }
 }

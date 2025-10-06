@@ -1,5 +1,6 @@
 package com.openlist.android.ui.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -8,7 +9,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -16,6 +20,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.openlist.android.BuildConfig
 import kotlinx.coroutines.launch
 import com.openlist.android.ui.viewmodel.AuthState
 import com.openlist.android.ui.viewmodel.SimpleAuthViewModel
@@ -33,7 +38,7 @@ fun LoginScreen(
     var serverUrl by remember { mutableStateOf("") }
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var rememberMe by remember { mutableStateOf(false) }
+    var rememberMe by remember { mutableStateOf(true) } // 默认勾选记住我
     var passwordVisible by remember { mutableStateOf(false) }
     var urlError by remember { mutableStateOf<String?>(null) }
     var showUrlSuggestion by remember { mutableStateOf(false) }
@@ -41,10 +46,20 @@ fun LoginScreen(
 
     val authState by viewModel.authState.collectAsStateWithLifecycle()
     val savedCredentials by viewModel.savedCredentials.collectAsStateWithLifecycle()
+    val autoLoginState by viewModel.autoLoginState.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     // 网络连接监控器
     val networkMonitor = remember { NetworkConnectivityMonitor.getInstance(viewModel.application) }
+
+    // Snackbar主机状态
+    val snackbarHostState = remember { androidx.compose.material3.SnackbarHostState() }
+
+    // 设置错误管理器的Snackbar主机
+    LaunchedEffect(Unit) {
+        viewModel.setErrorManagerSnackbarHost(snackbarHostState)
+    }
 
     LaunchedEffect(savedCredentials) {
         savedCredentials?.let { credentials ->
@@ -69,7 +84,91 @@ fun LoginScreen(
 
     Scaffold(
         topBar = {
-            NetworkStatusBanner(networkMonitor = networkMonitor)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .statusBarsPadding(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                NetworkStatusBanner(
+                    networkMonitor = networkMonitor,
+                    modifier = Modifier.weight(1f)
+                )
+
+                // 测试按钮（仅Debug模式）
+                if (BuildConfig.DEBUG_MODE) {
+                    TextButton(
+                        onClick = {
+                            Log.d("LoginScreen", "=== Test credentials button clicked ===")
+                            Log.d("LoginScreen", "Filling test credentials...")
+
+                            // 填入测试凭据
+                            val originalServerUrl = serverUrl
+                            val originalUsername = username
+                            val originalPassword = password
+                            val originalRememberMe = rememberMe
+
+                            serverUrl = "j.yzfycz.cn:5244"
+                            username = "lqc"
+                            password = "lqc"
+                            rememberMe = true
+
+                            Log.d("LoginScreen", "Test credentials applied:")
+                            Log.d("LoginScreen", "  - serverUrl: $serverUrl")
+                            Log.d("LoginScreen", "  - username: $username")
+                            Log.d("LoginScreen", "  - password: [***hidden***]")
+                            Log.d("LoginScreen", "  - rememberMe: $rememberMe")
+
+                            // 验证并格式化URL
+                            Log.d("LoginScreen", "Validating and formatting URL...")
+                            val formattedUrl = UrlUtils.formatUrl(serverUrl)
+                            if (formattedUrl != null) {
+                                Log.d("LoginScreen", "URL formatted successfully: $formattedUrl")
+                                serverUrl = formattedUrl
+                                urlError = null
+                                showUrlSuggestion = false
+
+                                // 保存格式化后的URL
+                                Log.d("LoginScreen", "Saving formatted server URL...")
+                                scope.launch {
+                                    try {
+                                        val saved = viewModel.saveServerUrl(formattedUrl)
+                                        if (saved) {
+                                            Log.d("LoginScreen", "Test server URL saved successfully")
+                                        } else {
+                                            Log.e("LoginScreen", "Failed to save test server URL")
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("LoginScreen", "Exception saving test server URL", e)
+                                        Log.e("LoginScreen", "Exception type: ${e.javaClass.simpleName}")
+                                        Log.e("LoginScreen", "Exception message: ${e.message}")
+                                    }
+                                }
+                            } else {
+                                Log.e("LoginScreen", "URL formatting failed for test URL: $serverUrl")
+                                urlError = "服务器地址格式无效"
+                            }
+
+                            Log.d("LoginScreen", "Test credentials fill completed:")
+                            Log.d("LoginScreen", "  - Final URL: $serverUrl")
+                            Log.d("LoginScreen", "  - Final username: $username")
+                            Log.d("LoginScreen", "  - Final rememberMe: $rememberMe")
+                        },
+                        modifier = Modifier
+                            .padding(end = 16.dp)
+                            .semantics {
+                                contentDescription = "点击填入"
+                            }
+                    ) {
+                        Text(
+                            text = "自动填入",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
         }
     ) { paddingValues ->
         Column(
@@ -260,24 +359,43 @@ fun LoginScreen(
         // Login Button
         Button(
             onClick = {
+                Log.d("LoginScreen", "=== Login button clicked ===")
+                Log.d("LoginScreen", "Login form data:")
+                Log.d("LoginScreen", "  - serverUrl: $serverUrl")
+                Log.d("LoginScreen", "  - username: $username")
+                Log.d("LoginScreen", "  - password: [***hidden***]")
+                Log.d("LoginScreen", "  - rememberMe: $rememberMe")
+                Log.d("LoginScreen", "  - urlError: $urlError")
+                Log.d("LoginScreen", "  - showUrlSuggestion: $showUrlSuggestion")
+
                 // 先验证URL格式
+                Log.d("LoginScreen", "Validating URL format...")
                 if (serverUrl.isNotBlank() && !UrlUtils.isValidUrl(serverUrl)) {
+                    Log.e("LoginScreen", "URL validation failed for: $serverUrl")
                     urlError = "服务器地址格式不正确，请包含完整的协议（如 https://j.yzfy）"
                     return@Button
                 }
+                Log.d("LoginScreen", "URL validation passed")
 
                 // 保存服务器URL并登录
+                Log.d("LoginScreen", "Saving server URL before login...")
                 val saved = viewModel.saveServerUrl(serverUrl)
                 if (saved) {
+                    Log.d("LoginScreen", "Server URL saved successfully")
                     urlError = null
                     showUrlSuggestion = false
+                    Log.d("LoginScreen", "Initiating login with viewModel...")
                     viewModel.login(username, password, rememberMe)
                 } else {
+                    Log.e("LoginScreen", "Failed to save server URL: $serverUrl")
                     urlError = "服务器地址格式无效"
                 }
             },
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .semantics {
+                    contentDescription = if (authState is AuthState.Loading) "正在登录" else "登录按钮"
+                },
             enabled = serverUrl.isNotBlank() && username.isNotBlank() && password.isNotBlank() && urlError == null && authState !is AuthState.Loading
         ) {
             if (authState is AuthState.Loading) {
@@ -370,4 +488,7 @@ fun LoginScreen(
             }
         )
     }
+
+    // Snackbar主机
+    SnackbarHost(hostState = snackbarHostState)
 }

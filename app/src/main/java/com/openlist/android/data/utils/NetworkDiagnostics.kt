@@ -69,7 +69,7 @@ object NetworkDiagnostics {
             isValidated = networkInfo.isValidated,
             isMetered = networkInfo.isMetered,
             serverUrl = serverUrl,
-            formattedUrl = UrlUtils.formatUrl(serverUrl),
+            formattedUrl = UrlUtils.formatUrl(serverUrl) ?: "",
             testResult = testServerConnection(serverUrl)
         )
     }

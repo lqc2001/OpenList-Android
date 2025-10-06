@@ -36,35 +36,35 @@ class NetworkStateInterceptor(
             throw when (e) {
                 is SocketTimeoutException -> {
                     // 根据URL类型提供更具体的超时错误信息
+                    val host = UrlUtils.getHost(url)
                     val timeoutMessage = when {
-                        UrlUtils.getHost(url).contains("localhost") ||
-                        UrlUtils.getHost(url).contains("127.0.0.1") ->
-                            "连接本地服务器超时，请确认本地AList服务正在运行"
-                        UrlUtils.getHost(url).contains("192.168.") ->
-                            "连接内网服务器超时，请确认服务器在同一个网络中"
+                        host.contains("localhost") || host.contains("127.0.0.1") ->
+                            "连接本地服务器超时: ${e.message}，请确认本地AList服务正在运行"
+                        host.contains("192.168.") ->
+                            "连接内网服务器超时: ${e.message}，请确认服务器在同一个网络中"
                         else ->
-                            "连接服务器超时，请检查网络连接或稍后重试"
+                            "连接服务器超时: ${e.message}"
                     }
                     IOException(timeoutMessage)
                 }
                 is ConnectException -> {
+                    val host = UrlUtils.getHost(url)
                     val connectMessage = when {
-                        UrlUtils.getHost(url).contains("localhost") ||
-                        UrlUtils.getHost(url).contains("127.0.0.1") ->
-                            "无法连接到本地服务器，请确认AList服务正在运行"
-                        UrlUtils.getHost(url).contains("192.168.") ->
-                            "无法连接到内网服务器，请确认服务器地址和网络配置"
+                        host.contains("localhost") || host.contains("127.0.0.1") ->
+                            "无法连接到本地服务器: ${e.message}，请确认AList服务正在运行"
+                        host.contains("192.168.") ->
+                            "无法连接到内网服务器: ${e.message}，请确认服务器地址和网络配置"
                         else ->
-                            "无法连接到服务器，请检查服务器地址和网络连接"
+                            "无法连接到服务器: ${e.message}"
                     }
                     IOException(connectMessage)
                 }
                 is UnknownHostException -> {
                     val host = UrlUtils.getHost(url)
-                    IOException("无法解析服务器地址: $host，请确认服务器地址正确")
+                    IOException("无法解析服务器地址: $host (${e.message})")
                 }
                 else -> {
-                    IOException("网络请求失败: ${e.message}")
+                    IOException("网络请求失败: ${e.javaClass.simpleName}: ${e.message}")
                 }
             }
         }
